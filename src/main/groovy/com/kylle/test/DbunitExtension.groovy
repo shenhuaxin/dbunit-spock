@@ -10,7 +10,6 @@ class DbunitExtension implements IAnnotationDrivenExtension<Dbunit> {
     void visitFeatureAnnotation(Dbunit dbunit, FeatureInfo feature) {
 
         feature.featureMethod.addInterceptor(new DbUnitInterceptor(dbunit, feature))
-
     }
 
 

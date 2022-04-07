@@ -1,11 +1,10 @@
 package com.kylle.test
 
-
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream
 import groovy.xml.MarkupBuilder
 import org.dbunit.dataset.IDataSet
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.ext.mysql.MySqlConnection
-import org.dbunit.operation.DatabaseOperation
 import org.spockframework.runtime.extension.AbstractMethodInterceptor
 import org.spockframework.runtime.extension.IMethodInvocation
 import org.spockframework.runtime.model.FeatureInfo
@@ -27,11 +26,19 @@ class DbUnitInterceptor extends AbstractMethodInterceptor {
         Closure closure = dbunit.content().newInstance(invocation.instance, invocation.instance)
         String dataSetStr = writeXmlDataSet(closure)
 
-        IDataSet dataSet = new FlatXmlDataSetBuilder().build(new ByteArrayInputStream(dataSetStr.getBytes()))
+        IDataSet dataSet = new FlatXmlDataSetBuilder().build(new ByteInputStream(dataSetStr.getBytes(), dataSetStr.getBytes().length))
         MySqlConnection connection = new MySqlConnection(DataSourceHolder.getConnection(), dbunit.schema() == "" ? null : dbunit.schema())
-        DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet)
-
-        invocation.proceed()
+        connection.getConnection().setAutoCommit(false)
+        DatabaseOperationLookup.get(dbunit.operation()).execute(connection, dataSet)
+        try {
+            invocation.proceed()
+        } finally {
+            if (dbunit.rollback()) {
+                connection.getConnection().rollback()
+            } else {
+                connection.getConnection().commit()
+            }
+        }
     }
 
 
