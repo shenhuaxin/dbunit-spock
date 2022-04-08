@@ -1,5 +1,5 @@
 # dbunit-spock
-抄了很多项目之后，完成了事务
+借鉴（chao）了很多项目之后，添加了Dbunit对@Transactional注解的支持
 
 
 参考项目：
