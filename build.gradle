@@ -23,7 +23,7 @@ dependencies {
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.5.1'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.5.1'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.5.1'
-
+    implementation group: 'org.codehaus.groovy', name: 'groovy-sql', version: '3.0.8'
 
 }
 apply plugin: 'groovy'

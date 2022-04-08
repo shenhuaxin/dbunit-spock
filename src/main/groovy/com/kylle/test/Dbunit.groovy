@@ -25,7 +25,5 @@ import java.lang.annotation.Target
 
     String schema() default "";
 
-    boolean rollback() default true;
-
     DatabaseOperation operation() default DatabaseOperation.INSERT;
 }

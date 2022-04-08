@@ -28,17 +28,8 @@ class DbUnitInterceptor extends AbstractMethodInterceptor {
 
         IDataSet dataSet = new FlatXmlDataSetBuilder().build(new ByteInputStream(dataSetStr.getBytes(), dataSetStr.getBytes().length))
         MySqlConnection connection = new MySqlConnection(DataSourceHolder.getConnection(), dbunit.schema() == "" ? null : dbunit.schema())
-        connection.getConnection().setAutoCommit(false)
         DatabaseOperationLookup.get(dbunit.operation()).execute(connection, dataSet)
-        try {
-            invocation.proceed()
-        } finally {
-            if (dbunit.rollback()) {
-                connection.getConnection().rollback()
-            } else {
-                connection.getConnection().commit()
-            }
-        }
+        invocation.proceed()
     }
 
 
