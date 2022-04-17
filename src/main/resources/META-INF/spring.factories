@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.extracme.evcard.rpc.test.dbunit.DbunitConfiguration
+  com.kylle.test.DbunitConfiguration

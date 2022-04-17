@@ -1,10 +1,10 @@
 package com.kylle.test
 
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream
 import groovy.xml.MarkupBuilder
-import org.dbunit.dataset.IDataSet
+import org.dbunit.database.IDatabaseConnection
+import org.dbunit.dataset.ReplacementDataSet
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
-import org.dbunit.ext.mysql.MySqlConnection
+import org.dbunit.ext.h2.H2Connection
 import org.spockframework.runtime.extension.AbstractMethodInterceptor
 import org.spockframework.runtime.extension.IMethodInvocation
 import org.spockframework.runtime.model.FeatureInfo
@@ -26,9 +26,14 @@ class DbUnitInterceptor extends AbstractMethodInterceptor {
         Closure closure = dbunit.content().newInstance(invocation.instance, invocation.instance)
         String dataSetStr = writeXmlDataSet(closure)
 
-        IDataSet dataSet = new FlatXmlDataSetBuilder().build(new ByteInputStream(dataSetStr.getBytes(), dataSetStr.getBytes().length))
-        MySqlConnection connection = new MySqlConnection(DataSourceHolder.getConnection(), dbunit.schema() == "" ? null : dbunit.schema())
-        DatabaseOperationLookup.get(dbunit.operation()).execute(connection, dataSet)
+
+        def builder = new FlatXmlDataSetBuilder()
+        builder.setColumnSensing(true)
+        ReplacementDataSet replacementDataSet = new ReplacementDataSet(builder.build(new ByteArrayInputStream(dataSetStr.getBytes())))
+        replacementDataSet.addReplacementObject("[null]", null)
+        replacementDataSet.addReplacementObject("[NULL]", null)
+        IDatabaseConnection connection = new H2Connection(DataSourceHolder.getConnection(), dbunit.schema() == "" ? null : dbunit.schema())
+        DatabaseOperationLookup.get(dbunit.operation()).execute(connection, replacementDataSet)
         invocation.proceed()
     }
 
